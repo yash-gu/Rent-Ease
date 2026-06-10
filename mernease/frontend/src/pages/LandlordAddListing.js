@@ -45,6 +45,7 @@ const LandlordAddListing = () => {
   const markerRef = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
+  const [detectingLocation, setDetectingLocation] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -213,6 +214,30 @@ const LandlordAddListing = () => {
     } finally {
       setGeocoding(false);
     }
+  };
+
+  const handleAutoDetectLocation = () => {
+    if (!navigator.geolocation) {
+      setError('Geolocation is not supported by your browser.');
+      return;
+    }
+
+    setDetectingLocation(true);
+    setError('');
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        await updateCoordinates(latitude, longitude);
+        setDetectingLocation(false);
+      },
+      (err) => {
+        console.error('Geolocation error:', err);
+        setError('Unable to retrieve your location. Please check browser permissions.');
+        setDetectingLocation(false);
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
   };
 
   const [selectedAmenities, setSelectedAmenities] = useState([]);
@@ -404,10 +429,25 @@ const LandlordAddListing = () => {
                     name="location"
                     value={formData.location}
                     onChange={handleChange}
+                    onBlur={handleGeocodeSearch}
                     required
                     className="bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-white outline-none flex-grow" 
                     placeholder="e.g. Beverly Hills, California" 
                   />
+                  <button
+                    type="button"
+                    onClick={handleAutoDetectLocation}
+                    disabled={detectingLocation}
+                    className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold px-5 py-3 rounded-xl text-xs flex items-center gap-1.5 transition-all shrink-0 active:scale-[0.98] border border-blue-500/10"
+                    title="Detect My Location"
+                  >
+                    {detectingLocation ? (
+                      <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+                    ) : (
+                      <span className="material-symbols-outlined text-sm">my_location</span>
+                    )}
+                    <span>Detect</span>
+                  </button>
                   <button
                     type="button"
                     onClick={handleGeocodeSearch}
