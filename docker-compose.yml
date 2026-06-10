@@ -1,0 +1,54 @@
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: rentease-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: rentease
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d rentease"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./mernease/backend
+      dockerfile: Dockerfile
+    container_name: rentease-backend
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgrespassword@db:5432/rentease
+      PORT: 5001
+      JWT_SECRET: rentease_secret_key_2024_super_secure_key
+      NODE_ENV: production
+      FRONTEND_URL: http://localhost:3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./mernease/frontend
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=http://localhost:5001
+        - REACT_APP_GOOGLE_MAPS_KEY=AIzaSyDxRbV-GKkJEqy75V5k5P-6L-KZYLwpX7c
+    container_name: rentease-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

@@ -1,0 +1,9 @@
+{
+  "short_name": "RentEase",
+  "name": "RentEase - Premium Property Rentals",
+  "icons": [],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#3525cd",
+  "background_color": "#ffffff"
+}

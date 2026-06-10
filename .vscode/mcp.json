@@ -1,0 +1,11 @@
+{
+  "servers": {
+    "notion": {
+      "command": "uvx",
+      "args": ["mcp-notion"],
+      "env": {
+        "NOTION_API_KEY": "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"
+      }
+    }
+  }
+}

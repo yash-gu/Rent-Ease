@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>RentEase | Premium Property Management</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/history@5/umd/history.development.js"></script>
+    <script src="https://unpkg.com/react-router@6.3.0/umd/react-router.development.js"></script>
+    <script src="https://unpkg.com/react-router-dom@6.3.0/umd/react-router-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+              "on-surface": "#0b1c30",
+              "on-primary-container": "#dad7ff",
+              "on-primary-fixed-variant": "#3323cc",
+              "surface-container-low": "#eff4ff",
+              "on-tertiary-fixed": "#002113",
+              "tertiary-container": "#006e4b",
+              "on-tertiary": "#ffffff",
+              "on-surface-variant": "#464555",
+              "surface": "#f8f9ff",
+              "on-primary-fixed": "#0f0069",
+              "primary-container": "#4f46e5",
+              "on-secondary-container": "#5c647a",
+              "tertiary-fixed": "#6ffbbe",
+              "inverse-primary": "#c3c0ff",
+              "surface-variant": "#d3e4fe",
+              "primary-fixed-dim": "#c3c0ff",
+              "primary": "#3525cd",
+              "on-secondary": "#ffffff",
+              "surface-container-highest": "#d3e4fe",
+              "outline": "#777587",
+              "secondary": "#565e74",
+              "primary-fixed": "#e2dfff",
+              "tertiary": "#005338",
+              "surface-bright": "#f8f9ff",
+              "error-container": "#ffdad6",
+              "secondary-container": "#dae2fd",
+              "surface-container-high": "#dce9ff",
+              "outline-variant": "#c7c4d8",
+              "secondary-fixed": "#dae2fd",
+              "surface-container": "#e5eeff",
+              "on-secondary-fixed": "#131b2e",
+              "background": "#f8f9ff",
+              "on-primary": "#ffffff",
+              "secondary-fixed-dim": "#bec6e0",
+              "surface-tint": "#4d44e3",
+              "on-tertiary-container": "#67f4b7",
+              "on-tertiary-fixed-variant": "#005236",
+              "inverse-surface": "#213145",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-fixed-variant": "#3f465c",
+              "on-error": "#ffffff",
+              "on-background": "#0b1c30",
+              "tertiary-fixed-dim": "#4edea3",
+              "on-error-container": "#93000a",
+              "inverse-on-surface": "#eaf1ff",
+              "error": "#ba1a1a",
+              "surface-dim": "#cbdbf5"
+            },
+            "spacing": {
+              "container-max": "1280px",
+              "margin-mobile": "16px",
+              "margin-desktop": "40px",
+              "unit": "8px",
+              "gutter": "24px"
+            },
+            "fontFamily": {
+              "sans": ["Inter", "sans-serif"]
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; }
+        .glass-panel, .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid rgba(53, 37, 205, 0.1);
+            border-right: 1px solid rgba(53, 37, 205, 0.1);
+        }
+        .dark .glass-panel, .dark .glass-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .nav-active {
+            background: rgba(79, 70, 229, 0.2);
+            color: #3525cd;
+            font-weight: 700;
+        }
+        .hover-scale { transition: transform 0.2s ease; }
+        .hover-scale:hover { transform: scale(1.02); }
+        .active-scale:active { transform: scale(0.98); }
+        .success-toast {
+            transform: translateY(100px);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+        }
+        .success-toast.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .message-bubble-sent {
+            background: linear-gradient(135deg, #4f46e5, #3525cd);
+            color: white;
+            border-radius: 18px 18px 4px 18px;
+        }
+        .message-bubble-received {
+            background: rgba(241, 245, 249, 0.8);
+            color: #0b1c30;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 18px 18px 18px 4px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { createRoot } = ReactDOM;
+        const { MemoryRouter, Routes, Route, Link, useNavigate, useLocation } = ReactRouterDOM;
+
+        // --- Shared Components ---
+
+        const NavTop = ({ role = "tenant" }) => {
+            const navigate = useNavigate();
+            const location = useLocation();
+            const [darkMode, setDarkMode] = useState(false);
+
+            const toggleTheme = () => {
+                setDarkMode(!darkMode);
+                document.documentElement.classList.toggle('dark');
+            };
+
+            const linkClass = (path) => `font-label-md text-label-md font-medium transition-colors ${location.pathname === path ? 'text-primary dark:text-primary-fixed border-b-2 border-primary pb-1' : 'text-secondary dark:text-secondary-fixed-dim hover:text-primary'}`;
+
+            return (
+                <header className="fixed top-0 w-full z-50 bg-white/70 dark:bg-secondary/60 backdrop-blur-xl border-b border-white/20 dark:border-outline-variant/10 shadow-[0_20px_40px_rgba(0,0,0,0.05)] h-20">
+                    <div className="flex justify-between items-center h-full px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+                        <Link to="/" className="flex items-center gap-2 hover:scale-[1.02] transition-transform">
+                            <span className="text-2xl font-black text-primary dark:text-inverse-primary tracking-tight">RentEase</span>
+                        </Link>
+                        
+                        <nav className="hidden md:flex items-center gap-8">
+                            <Link to="/discovery" className={linkClass("/discovery")}>Discover</Link>
+                            <Link to={role === 'host' ? "/host-dashboard" : "/tenant-dashboard"} className={linkClass(role === 'host' ? "/host-dashboard" : "/tenant-dashboard")}>
+                                {role === 'host' ? "Manage" : "Bookings"}
+                            </Link>
+                            <Link to="/messages" className={linkClass("/messages")}>Messages</Link>
+                        </nav>
+
+                        <div className="flex items-center gap-4">
+                            <button 
+                                onClick={() => navigate(role === "tenant" ? "/host-dashboard" : "/tenant-dashboard")}
+                                className="hidden lg:flex items-center px-5 py-2.5 rounded-full bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-all text-sm"
+                            >
+                                Switch to {role === "tenant" ? "Host" : "Tenant"}
+                            </button>
+                            <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-surface-container transition-colors">
+                                <span className="material-symbols-outlined">{darkMode ? 'light_mode' : 'dark_mode'}</span>
+                            </button>
+                            <div className="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-outline-variant hover:scale-[1.02] transition-transform cursor-pointer">
+                                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhUS5LsRz4vJXm8dXqoP56KLDKNLYq_R2uTta_iUf31SEvvHsr6ZD7B3DjlsWbwclOIabcBos0WS5Yz3CjbMhudQkLzHTUbDujCWq4z1Sl52T0m_OjThrJis_3DOkf2i5Wty_syIr2fykvDlDfJ6X1weye-6eTZ_zgFqSWnsq55Cixn80STAHpH4ij_E1EQCOHbbVB-HfJCmaL_TFpwfSjbPBOVkI7ag-7lvaf2Jjby_bcUwAOVPBRgc8qriE8k3Bn0TyU7yKX7mE" className="w-full h-full object-cover" />
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            );
+        };
+
+        const SidebarHost = () => {
+            const location = useLocation();
+            const navigate = useNavigate();
+            const navLink = (path, icon, label) => (
+                <Link to={path} className={`flex items-center gap-3 p-3 rounded-xl transition-all ${location.pathname === path ? 'nav-active' : 'text-secondary hover:bg-surface-container-low'}`}>
+                    <span className="material-symbols-outlined">{icon}</span>
+                    <span className="font-label-md">{label}</span>
+                </Link>
+            );
+
+            return (
+                <aside className="h-screen w-64 fixed left-0 top-0 z-40 sidebar-glass border-r border-white/20 flex flex-col p-6 space-y-4">
+                    <div className="mb-8">
+                        <h1 className="text-2xl font-black text-primary">Host Portal</h1>
+                        <p className="text-xs text-secondary font-medium uppercase tracking-wider">Premium Management</p>
+                    </div>
+                    <div className="flex flex-col space-y-1 flex-grow">
+                        {navLink("/host-dashboard", "dashboard", "Dashboard")}
+                        {navLink("/host-listings", "domain", "Listings")}
+                        {navLink("/host-bookings", "calendar_today", "Bookings")}
+                        {navLink("/host-documents", "folder_open", "Documents")}
+                        {navLink("/host-earnings", "payments", "Earnings")}
+                    </div>
+                    <div className="pt-6 border-t border-outline-variant space-y-1">
+                        <button onClick={() => navigate("/add-listing")} className="w-full bg-primary text-white py-3 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 mb-4">
+                            New Property
+                        </button>
+                        <a className="flex items-center gap-3 p-3 text-secondary hover:bg-surface-container-low rounded-xl transition-all" href="#">
+                            <span className="material-symbols-outlined">help</span>
+                            <span className="font-label-md">Help Center</span>
+                        </a>
+                        <Link to="/" className="flex items-center gap-3 p-3 text-secondary hover:bg-surface-container-low rounded-xl transition-all">
+                            <span className="material-symbols-outlined">logout</span>
+                            <span className="font-label-md">Sign Out</span>
+                        </Link>
+                    </div>
+                </aside>
+            );
+        };
+
+        const Footer = () => (
+            <footer className="w-full py-12 bg-surface border-t border-outline-variant/30">
+                <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-2 gap-gutter items-center">
+                    <div>
+                        <span className="text-xl font-bold text-on-surface mb-2 block">RentEase</span>
+                        <p className="text-secondary text-sm max-w-sm">© 2024 RentEase Premium Hospitality. All rights reserved. Professional property management for the modern era.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-x-8 gap-y-4 md:justify-end text-sm text-on-surface-variant">
+                        <a className="hover:text-primary hover:underline transition-colors" href="#">About Us</a>
+                        <a className="hover:text-primary hover:underline transition-colors" href="#">Terms of Service</a>
+                        <a className="hover:text-primary hover:underline transition-colors" href="#">Privacy Policy</a>
+                        <a className="hover:text-primary hover:underline transition-colors" href="#">Support</a>
+                    </div>
+                </div>
+            </footer>
+        );
+
+        // --- Screen Components ---
+
+        const HomePage = () => (
+            <div className="pt-20">
+                <NavTop role="tenant" />
+                <section className="relative min-h-[870px] flex items-center justify-center overflow-hidden px-margin-mobile md:px-margin-desktop">
+                    <div className="absolute inset-0 z-0">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuABeUkB-jNeF7UZ2TBPdzla6oP5707jTFmCLeiEzjlW_k7BkQLwTwcQpBsmaN8s3NTOfKCGCiZYjvwLxjoQURAxOSxCFia_DCDsCJkM4CZcsXOeAJzputI242-K84K7wy4DOTOVTbYx8JYdlUUOfEOg6zuTCgXn4amJvmu7tnvqmTDd4wnzikAiXPvV7o1iOTsW5bFQl_kKqTViSIUCzl3DvSWUNEGhVDkIZbqGlvxbk5oeB5ItZOT6rbybf49XSTcOf2QeOoN5CXY" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-on-background/30 via-on-background/20 to-background"></div>
+                    </div>
+                    <div className="relative z-10 w-full max-w-container-max text-center space-y-12">
+                        <div className="space-y-4">
+                            <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-lg leading-tight">
+                                Find your next sanctuary <br className="hidden md:block"/> with RentEase.
+                            </h1>
+                            <p className="text-xl text-white/90 max-w-2xl mx-auto"> Gold standard in premium hospitality and property management. </p>
+                        </div>
+                        <div className="w-full max-w-4xl mx-auto glass-panel p-4 md:p-2 rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2">
+                            <div className="flex-1 w-full flex items-center gap-3 px-6 py-3 border-b md:border-b-0 md:border-r border-outline-variant/30">
+                                <span className="material-symbols-outlined text-primary">location_on</span>
+                                <div className="text-left"><label className="text-xs text-secondary font-bold">Location</label><input className="bg-transparent border-none p-0 focus:ring-0 text-on-surface font-medium w-full" placeholder="Where are you going?" /></div>
+                            </div>
+                            <div className="flex-1 w-full flex items-center gap-3 px-6 py-3 border-b md:border-b-0 md:border-r border-outline-variant/30">
+                                <span className="material-symbols-outlined text-primary">calendar_month</span>
+                                <div className="text-left"><label className="text-xs text-secondary font-bold">Dates</label><input className="bg-transparent border-none p-0 focus:ring-0 text-on-surface font-medium w-full" placeholder="Add dates" /></div>
+                            </div>
+                            <Link to="/discovery" className="w-full md:w-auto px-8 py-4 rounded-full bg-primary text-white font-bold hover:scale-[1.05] transition-all flex items-center justify-center gap-2">
+                                <span className="material-symbols-outlined">search</span> Search
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+                <Footer />
+            </div>
+        );
+
+        const DiscoveryPage = () => {
+            const navigate = useNavigate();
+            return (
+                <div className="h-screen overflow-hidden">
+                    <NavTop role="tenant" />
+                    <main className="flex h-full pt-20">
+                        <section className="w-full md:w-[45%] h-full overflow-y-auto custom-scrollbar bg-surface px-6 py-8">
+                            <div className="max-w-2xl mx-auto space-y-8">
+                                <header className="flex flex-col gap-4 mb-8">
+                                    <h1 className="text-3xl font-bold text-on-surface">Luxury Stays in Paris</h1>
+                                    <div className="flex items-center gap-2 bg-white border border-outline-variant rounded-xl px-4 py-2">
+                                        <span className="material-symbols-outlined text-outline">search</span>
+                                        <input className="bg-transparent border-none focus:ring-0 w-full" placeholder="Search districts, amenities..." />
+                                        <button className="material-symbols-outlined text-primary">tune</button>
+                                    </div>
+                                </header>
+                                {[
+                                    { id: 1, title: "L'Haussmann Prestige", loc: "Le Marais, Paris", price: "450", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAgbyUY7R8Ogbr1dNO-Zs7dUDewV2zlTs9aC7WZtjKTmw5XnZ8CeTsfwRiuV1rIL3Rh1qtDgp-kwMHCPots5BDHGatlX0jyRZAiwvNX9xEqp1m441HgqY-pjM7KOzrj8fr4WoIVjO9wydYRfRAfxzk5JOv5lzawrfoNMOowEtGJOMMi76JHW9ufbJ67_SLqZMrz1lmulGxUhASiKWKqKTAD1JL-2E65FSFhb7S2APhICGl5JQoAUG5o7Y-oqY5bB3YaGB1VsG2sZH8" },
+                                    { id: 2, title: "Eiffel Sky Garden", loc: "7th Arrondissement, Paris", price: "820", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuC0Z6F8K5Bff0ghg29Atc5Z_yIaTRlQM1LnAvCGJMV237416eKnzl499W7DCt5od-QUHj0X1iFvCgigLLifT3RW1zaQ0iTdoCmnPn2g2thwp3bljHV2g2SSCIKqwxZssea53R7FZYDd6ax4BOcPNW085u9iny3263-zokvZEw8GbE5Rb2T9-2ci0MOmgNE0tndmSMhHMP6Qzx8SeoIjf3J0gg_hbvjRr3KPsfYzImrVFzGq-pWeyoYlGB2Bw_040HexgU4133hMKt0" },
+                                ].map(item => (
+                                    <div key={item.id} onClick={() => navigate('/property-details')} className="glass-card rounded-2xl overflow-hidden group cursor-pointer transition-all hover:shadow-xl">
+                                        <div className="relative h-64 overflow-hidden">
+                                            <img src={item.img} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                            <div className="absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-full text-xs font-bold text-primary">Verified</div>
+                                        </div>
+                                        <div className="p-5 flex justify-between items-start">
+                                            <div>
+                                                <h3 className="font-bold text-xl">{item.title}</h3>
+                                                <p className="text-secondary text-sm">{item.loc}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-xl font-bold text-primary">€{item.price}<span className="text-xs font-normal text-secondary">/night</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                        <section className="hidden md:block w-[55%] h-full relative bg-slate-100">
+                            <div className="absolute inset-0 bg-[#f1f5f9] flex items-center justify-center">
+                                <span className="text-slate-400 font-bold">Interactive Map View</span>
+                            </div>
+                        </section>
+                    </main>
+                </div>
+            );
+        };
+
+        const PropertyDetails = () => (
+            <div className="pt-20">
+                <NavTop role="tenant" />
+                <main className="mt-8 max-w-container-max mx-auto px-margin-desktop pb-24">
+                    <header className="mb-8">
+                        <h1 className="text-5xl font-black mb-2">Azure Heights Villa</h1>
+                        <div className="flex gap-4 text-on-surface-variant text-sm">
+                            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-primary text-sm" style={{fontVariationSettings: "'FILL' 1"}}>star</span> 4.98 • 128 reviews</span>
+                            <span>Santorini, Greece</span>
+                        </div>
+                    </header>
+                    <section className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-3 h-[500px] rounded-xl overflow-hidden mb-12">
+                        <div className="md:col-span-2 md:row-span-2 overflow-hidden"><img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEgt8S2zyz8WwkVKqhQ-vdM-gVlgt2lOVjlUsedlB-mamFIIfMF9IHKLpEODNM4KLVT2e1niCVvS0l-aTOvp7YDPorCS2liVlDNbsNTIV8LdfU-nsvdmiOrSD4lXtwIMHuYu_ZlOoLpObADq0x78CO3euGNEaZO_GnRxi4HcOgxE9rDv7XrRQOrR5t3Yqrzeb4Kmgt0zCvME2lQJNkHMgYvajnX442ANlq4cARkeTBRKfy8nTjoyAbKWSPNRBhhm6duvIGs2KXITU" /></div>
+                        <div className="overflow-hidden"><img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBB3M7R4l84fF3mhGP8WJBZRz7j3ZNfU9i79xQaCYyz6GU6MPvzDhZGljFwwObj3GF4zSOFRWF9oJxhSEV8kGFQUScu--n9u5kNL7shQQtnI_-icsL8BVnDkgNGah3ve7ikNwPRjdsgpdgHWqDJqQBTWzqG1qDoCkbs7YN4tTs8vX-IZMiiIo1eBZkYHwGjBfPmYZRulclDYqtk8ZFFtowcErAl7-mofZ9RnSxDNELlt_Hub7AqmSIlo2QHBOXercVnkHaeMx2gCEM" /></div>
+                        <div className="overflow-hidden"><img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrGBnwCZtgrLTq_nTWxwnXwdgv6Wb7ZlKB9WoA2e0kju_XSkXPqqRfwOZE1IBuFFzTujrCo6lRRe6qeodwcfsSrFQMAJiDDm0eMfCBC-FGGBuQeNriZinCq6UWucEuJ4uk7vJTu4SHMHwJ9--uw7_nxkNlikMREhhEH0GjMQJV0Bco1jRnjsxPHubSGHQbDBFGJTMN4XKfI-TbPoY22FVOp-C585LmQqA9zq38h-mlWQky1Jz_EFT0Lp-QQYaebZjZ2-E7wSpCDLE" /></div>
+                        <div className="overflow-hidden"><img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXyhVqRxy3lCKprM-9cbyF5S5Ti4pTCI25sRPYD6Ycrmvvq1uBEnAR6ARe-8MGRxZu96mb753CDGtLHhXOW8Zy4DxdOtcyIyMimfRQ834CsXO1mkQINp3OZDKZ-lZITGJ6orvp4QtMeYMiITrZgDM3Wtg6Dv3tD_MQ7tpZax0M90jjWXIf-T0Wbfn3hwFnEfMP2opH-8eWAj8rFTJpwtFVjENWJvlCCHvywTeylF-Z4kKA7NsEWz6IOpK_Ruc7TOypMwgGxnqBiEw" /></div>
+                        <div className="overflow-hidden relative"><img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUDF5yUsryupBFB9GnDJhRCmpEHjypTzwWOPnt5jvZg_jE03twwKgrwUpdgKZidYVUHe7EfjKCAKtFK9Ck82gnZzfht0FZDeWAxVI8rrx8TOZ0jNregKA2KSadekpBmWpnz-V0k5rXHj6LWdv2gFx34GIPKsBP2tNb2_ht_xwLcy9qCyBvrvSyrPSnvAFL9wet69ls2cnkC3dZLS9zyJdP-g34_6sYjeeDQbg0xGxfMgRhmBBzkwp3UYA46UHXuQ671DO_PDqNUMg" /><button className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-lg font-bold shadow-lg">Show all photos</button></div>
+                    </section>
+                    <div className="flex flex-col lg:flex-row gap-gutter">
+                        <div className="flex-grow lg:max-w-[calc(100%-400px)]">
+                            <h2 className="text-2xl font-bold mb-6">Entire villa hosted by Eleni</h2>
+                            <p className="text-lg text-secondary mb-10">10 guests • 5 bedrooms • 6 beds • 5.5 baths</p>
+                            <div className="space-y-6 mb-10 pb-10 border-b border-outline-variant">
+                                <div className="flex gap-4"><span className="material-symbols-outlined text-3xl">pool</span><div><h3 className="font-bold">Infinity Pool</h3><p className="text-secondary">Private heated pool with panoramic sea views.</p></div></div>
+                                <div className="flex gap-4"><span className="material-symbols-outlined text-3xl">restaurant</span><div><h3 className="font-bold">Private Chef</h3><p className="text-secondary">Enjoy bespoke Mediterranean dining prepared daily.</p></div></div>
+                            </div>
+                            <p className="text-lg leading-relaxed text-secondary mb-10">Perched on the highest point of the Santorini cliffs, Azure Heights Villa offers an unparalleled luxury experience...</p>
+                        </div>
+                        <aside className="w-full lg:w-[400px]">
+                            <div className="glass-card p-6 rounded-2xl sticky top-28 border border-outline-variant shadow-xl">
+                                <div className="flex justify-between items-center mb-6"><div><span className="text-2xl font-black">$1,250</span><span className="text-secondary"> / night</span></div></div>
+                                <div className="border border-outline-variant rounded-xl p-4 mb-6">
+                                    <div className="text-xs font-bold text-secondary uppercase mb-1">Check-in / Check-out</div>
+                                    <div className="font-bold">Oct 10 – Oct 15, 2024</div>
+                                </div>
+                                <Link to="/checkout" className="block w-full bg-primary text-white py-4 rounded-xl font-bold text-center mb-6 hover:opacity-90 active:scale-95 transition-all">Reserve Now</Link>
+                                <div className="space-y-3 border-t border-outline-variant pt-6">
+                                    <div className="flex justify-between"><span>$1,250 x 5 nights</span><span>$6,250</span></div>
+                                    <div className="flex justify-between"><span>Service fee</span><span>$890</span></div>
+                                    <div className="flex justify-between font-bold text-lg pt-2"><span>Total</span><span>$7,140</span></div>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </main>
+                <Footer />
+            </div>
+        );
+
+        const CheckoutPage = () => {
+            const [processing, setProcessing] = useState(false);
+            const [success, setSuccess] = useState(false);
+            const navigate = useNavigate();
+
+            const handlePay = (e) => {
+                e.preventDefault();
+                setProcessing(true);
+                setTimeout(() => {
+                    setProcessing(false);
+                    setSuccess(true);
+                    setTimeout(() => navigate('/tenant-dashboard'), 3000);
+                }, 2000);
+            };
+
+            return (
+                <div className="pt-20">
+                    <NavTop role="tenant" />
+                    <main className="pt-12 pb-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+                        <h1 className="text-4xl font-bold mb-10">Confirm and pay</h1>
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+                            <div className="lg:col-span-5 glass-card rounded-xl p-6 shadow-sm">
+                                <div className="flex gap-4 mb-6">
+                                    <div className="w-32 h-24 rounded-lg overflow-hidden shrink-0"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDk3DCzk20qNAz3_5BL5cMADTFz1G3jbCzTcaPghORJsegPq_tlTZW1Ruzh8nGSAD7Q4MtfWKju6icIDIBaBw8_hKYX5RXWPwKSL4_j80hlt29jLFhzNPIXAarXLal3pqEwx9I7ygkTFezRlaNcPCPLtB-V7q2sM2zJVpWvCYrJZczWftg5gqNEqAvhz3EgnmMdEE9tJxVgGrhaFnB1XxIWjTtk0KVi5V9jV5W-h7dw5CycwoeHrVUmmSSz2iJ6CpNX2JUIru9EFbc" className="w-full h-full object-cover" /></div>
+                                    <div className="flex flex-col justify-center">
+                                        <p className="text-xs text-primary font-bold uppercase tracking-wider">Entire Villa</p>
+                                        <h2 className="font-bold text-xl">Azure Heights Villa</h2>
+                                        <div className="flex items-center gap-1 text-sm"><span className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>star</span> 4.98 <span className="text-secondary">(124 reviews)</span></div>
+                                    </div>
+                                </div>
+                                <div className="border-t border-outline-variant pt-6 space-y-4">
+                                    <h3 className="font-bold text-lg">Price details</h3>
+                                    <div className="flex justify-between"><span>$850.00 x 5 nights</span><span>$4,250.00</span></div>
+                                    <div className="flex justify-between font-bold text-xl pt-4 border-t border-outline-variant"><span>Total (USD)</span><span>$4,477.50</span></div>
+                                </div>
+                            </div>
+                            <div className="lg:col-span-7 glass-panel rounded-xl p-8 shadow-sm">
+                                <h2 className="text-2xl font-bold mb-8">Payment method</h2>
+                                <form onSubmit={handlePay} className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-secondary uppercase">Card Information</label>
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary">credit_card</span>
+                                            <input className="w-full pl-12 pr-4 py-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary" placeholder="Card number" defaultValue="4242 4242 4242 4242" />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4 mt-4">
+                                            <input className="w-full px-4 py-4 bg-white border border-outline-variant rounded-lg" placeholder="MM / YY" />
+                                            <input className="w-full px-4 py-4 bg-white border border-outline-variant rounded-lg" placeholder="CVV" />
+                                        </div>
+                                    </div>
+                                    <button disabled={processing} className={`w-full py-5 rounded-full font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-3 ${success ? 'bg-emerald-600 text-white' : 'bg-primary text-white hover:scale-[1.02] active:scale-95'}`}>
+                                        {processing ? <span className="material-symbols-outlined animate-spin">progress_activity</span> : success ? "Payment Confirmed" : "Confirm & Pay"}
+                                        {!processing && !success && <span className="material-symbols-outlined">lock</span>}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </main>
+                    <div className={`success-toast fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] ${success ? 'active' : 'opacity-0'}`}>
+                        <div className="glass-card bg-emerald-50/90 border-emerald-200 px-8 py-4 rounded-full shadow-xl flex items-center gap-4 border-2">
+                            <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white"><span className="material-symbols-outlined">check</span></div>
+                            <div><p className="font-bold text-emerald-900">Success! Deposit Secured</p><p className="text-xs text-emerald-700">A confirmation email has been sent to your inbox.</p></div>
+                        </div>
+                    </div>
+                    <Footer />
+                </div>
+            );
+        };
+
+        const TenantDashboard = () => (
+            <div className="pt-20">
+                <NavTop role="tenant" />
+                <main className="pt-12 pb-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+                    <h1 className="text-5xl font-black mb-10">Welcome back, Alex.</h1>
+                    <section className="mb-12 glass-panel p-6 rounded-2xl flex flex-col lg:flex-row gap-6 items-center shadow-sm">
+                        <div className="w-full lg:w-1/3">
+                            <label className="text-xs font-bold text-secondary uppercase mb-2 block">Location</label>
+                            <input className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-3" placeholder="Where are you going?" />
+                        </div>
+                        <button className="lg:w-auto px-8 py-4 bg-primary text-white rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <span className="material-symbols-outlined">search</span> Search
+                        </button>
+                    </section>
+                    <h2 className="text-2xl font-bold mb-6">Your Recent Bookings</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="glass-card rounded-2xl overflow-hidden group cursor-pointer shadow-sm">
+                            <div className="h-48 overflow-hidden"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrnUcydvje-wWRANjogtFUrWSvL5xXMlLm6pYGS3u6v-cJHH9OJl3R_Zf9ECa2LWC2LgeUG_GjeEfAgePI-7nOLWzJYkWWSHF0NAK_tAV_1DWKaGfYLFfv8GscyaKm5Kev1UOGsi10xUWomASmHiuApowCz8dg9ExbObL3Gyv-13XBSeIUD6OdNa0VIF1az4wPhm1k_ywSXwzHuTMjd6VLafEyLEY6bLDCZ-EZU27t3lnTPrxPI9W5BQAsW27XH6Q5R-jWz2tT8Tw" className="w-full h-full object-cover" /></div>
+                            <div className="p-6">
+                                <h3 className="font-bold text-xl mb-1">Azure Heights Villa</h3>
+                                <p className="text-secondary text-sm mb-4">Oct 10 – 15, 2024 • Santorini, Greece</p>
+                                <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">Confirmed</span>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <Footer />
+            </div>
+        );
+
+        const HostDashboard = () => (
+            <div className="flex bg-slate-50 min-h-screen">
+                <SidebarHost />
+                <main className="ml-64 flex-grow p-margin-desktop w-full">
+                    <header className="mb-12">
+                        <h1 className="text-4xl font-black mb-2">Landlord Dashboard</h1>
+                        <p className="text-lg text-secondary">Welcome back, Marcus. Here's your portfolio today.</p>
+                    </header>
+                    <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-16">
+                        {[
+                            { label: "Total Earnings", value: "$45,200", icon: "payments", color: "bg-primary-fixed", text: "text-primary", growth: "+12%" },
+                            { label: "Active Listings", value: "12", icon: "domain", color: "bg-secondary-container", text: "text-secondary" },
+                            { label: "Occupancy Rate", value: "94%", icon: "group", color: "bg-tertiary-fixed", text: "text-tertiary" },
+                            { label: "New Messages", value: "3", icon: "chat", color: "bg-error-container", text: "text-error", alert: true },
+                        ].map((stat, idx) => (
+                            <div key={idx} className="glass-card p-6 rounded-xl shadow-sm hover:scale-[1.02] transition-transform">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className={`w-12 h-12 rounded-lg ${stat.color} flex items-center justify-center ${stat.text}`}><span className="material-symbols-outlined">{stat.icon}</span></div>
+                                    {stat.growth && <span className="text-emerald-600 font-bold text-xs bg-emerald-50 px-2 py-1 rounded">{stat.growth}</span>}
+                                    {stat.alert && <div className="w-2 h-2 rounded-full bg-error animate-pulse"></div>}
+                                </div>
+                                <h3 className="text-secondary text-sm font-bold mb-1 uppercase tracking-wider">{stat.label}</h3>
+                                <p className="text-3xl font-black text-on-surface">{stat.value}</p>
+                            </div>
+                        ))}
+                    </section>
+                    <section className="mb-12">
+                        <div className="flex justify-between items-center mb-8">
+                            <h2 className="text-2xl font-bold">My Properties</h2>
+                            <Link to="/add-listing" className="bg-primary text-white px-6 py-3 rounded-full font-bold flex items-center gap-2 hover:scale-[1.02] transition-all shadow-lg">
+                                <span className="material-symbols-outlined">add</span> Add New Listing
+                            </Link>
+                        </div>
+                        <div className="glass-card rounded-2xl overflow-hidden shadow-sm">
+                            <table className="w-full text-left">
+                                <thead className="bg-slate-50">
+                                    <tr className="border-b border-outline-variant/10">
+                                        <th className="px-6 py-5 font-bold text-secondary text-xs uppercase tracking-widest">Property Name</th>
+                                        <th className="px-6 py-5 font-bold text-secondary text-xs uppercase tracking-widest">Status</th>
+                                        <th className="px-6 py-5 font-bold text-secondary text-xs uppercase tracking-widest">Monthly Revenue</th>
+                                        <th className="px-6 py-5 font-bold text-secondary text-xs uppercase tracking-widest text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-outline-variant/10">
+                                    <tr className="hover:bg-primary/5 transition-colors">
+                                        <td className="px-6 py-5"><div className="flex items-center gap-4"><div className="w-12 h-12 bg-slate-200 rounded-lg overflow-hidden shrink-0"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD825H4zYbfiFogiDivCl5Nh_bjp88YpnyoP-JFiusupceGeTQN5knnLUTuXppGeSFKgLZQ3hkJgHBz-SgRsecilivzxfZGCW0UggTiqqF4smdvjq51-Z2ExUqnC-tkV8x4OaI1LT4Co9Q0gOcL4ohPOxWW9ypQc5b4I5nUy-08KRyCnI7lUQ5Pc-tN3LWH60sbWsSC0NM6IRFYDtpyXiZ2pfNjsid9EPBgkbfd0eFnAFeh6qsAAknVJT3qwVbRnP4u_N-NrHJ-3E8" className="w-full h-full object-cover"/></div><div><p className="font-bold">Skyline Penthouse</p><p className="text-xs text-secondary">Manhattan, NY</p></div></div></td>
+                                        <td className="px-6 py-5"><span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">Occupied</span></td>
+                                        <td className="px-6 py-5"><div><p className="font-bold">$8,500</p><p className="text-xs text-emerald-600">+4% vs last mo</p></div></td>
+                                        <td className="px-6 py-5 text-right"><span className="material-symbols-outlined text-secondary hover:text-primary cursor-pointer">more_vert</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </main>
+            </div>
+        );
+
+        const AddListingPage = () => {
+            const navigate = useNavigate();
+            const [published, setPublished] = useState(false);
+            return (
+                <div className="flex bg-slate-50 min-h-screen">
+                    <SidebarHost />
+                    <main className="ml-64 p-margin-desktop w-full max-w-4xl mx-auto">
+                        <header className="mb-10">
+                            <h1 className="text-5xl font-black mb-2">List your masterpiece</h1>
+                            <p className="text-lg text-secondary">Showcase your property to the world's most discerning travelers.</p>
+                        </header>
+                        <form className="space-y-12 pb-24" onSubmit={(e) => { e.preventDefault(); setPublished(true); }}>
+                            <section className="glass-panel bg-white rounded-3xl p-8 shadow-sm">
+                                <h2 className="text-xl font-bold mb-6 flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-primary">edit_note</span> Basic Information
+                                </h2>
+                                <div className="space-y-4">
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-sm font-bold text-secondary">Listing Title</label>
+                                        <input className="bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary" placeholder="e.g. Minimalist Glass Villa in Beverly Hills" />
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-sm font-bold text-secondary">Description</label>
+                                        <textarea className="bg-slate-50 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary" rows="4" placeholder="Describe the ambiance..." />
+                                    </div>
+                                </div>
+                            </section>
+                            <div className="fixed bottom-0 right-0 left-64 bg-white/80 backdrop-blur-xl border-t border-outline-variant p-6 flex justify-between items-center z-50">
+                                <button type="button" onClick={() => navigate(-1)} className="text-secondary font-bold flex items-center gap-2"><span className="material-symbols-outlined">arrow_back</span> Back</button>
+                                <div className="flex gap-4">
+                                    <button type="button" className="px-8 py-3 rounded-full font-bold bg-slate-100">Save as Draft</button>
+                                    <button type="submit" className="px-10 py-3 rounded-full font-bold bg-primary text-white shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">Publish Listing</button>
+                                </div>
+                            </div>
+                        </form>
+                        {published && (
+                            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                                <div className="glass-panel bg-white rounded-3xl p-10 max-w-md w-full text-center shadow-2xl">
+                                    <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6"><span className="material-symbols-outlined text-4xl text-emerald-600">verified</span></div>
+                                    <h3 className="text-2xl font-black mb-2">Listing Published!</h3>
+                                    <p className="text-secondary mb-8">Your property is now live and visible to potential guests.</p>
+                                    <button className="w-full bg-primary text-white py-4 rounded-full font-bold" onClick={() => navigate('/host-dashboard')}>Go to Dashboard</button>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        const MessagesPage = () => (
+            <div className="h-screen overflow-hidden flex flex-col">
+                <NavTop role="tenant" />
+                <main className="flex-grow pt-20 pb-8 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full h-full overflow-hidden">
+                    <div className="glass-panel w-full h-full rounded-[24px] shadow-2xl flex overflow-hidden">
+                        <aside className="w-full md:w-[380px] border-r border-outline-variant/30 flex flex-col bg-white/40">
+                            <div className="p-6 border-b border-outline-variant/20">
+                                <h1 className="text-2xl font-bold mb-4">Messages</h1>
+                                <input className="w-full pl-4 pr-4 py-2.5 bg-white/50 border border-outline-variant/30 rounded-xl" placeholder="Search conversations..." />
+                            </div>
+                            <div className="flex-grow overflow-y-auto custom-scrollbar">
+                                <div className="p-4 bg-primary/5 border-l-4 border-primary flex gap-4 cursor-pointer">
+                                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeK5UVisi3xmg4SlRdWlUhK2YeT-PEqFxl0LaMbGHn_uGdOLQKqZ5YELQJX9cblkytefrGd_DurUU5MJM7Dlv5Fq3gpP3qz1BqvtcC3dOi-q97UEJ5Y7YnQHR1sR0S1S5BPIOmhGdaJF0PD7RoXc0VENjcVloND5d-S0xlbY2h4P6uTEREHlQAkHn9Ltcq-v_3wfHltaXr1vHmApsw3ckKXrCtx8ujndmTlr3bK8Fma2LisWslY7k1BkDA3S287JTOd8WFMS8ae6k" className="w-14 h-14 rounded-xl object-cover" />
+                                    <div className="min-w-0">
+                                        <div className="flex justify-between items-start mb-1"><span className="font-bold truncate">Eleni - Azure Heights Villa</span></div>
+                                        <p className="text-sm text-secondary truncate">The check-in instructions are...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                        <section className="flex-grow flex flex-col bg-white/10">
+                            <header className="h-20 px-6 border-b border-outline-variant/30 flex items-center justify-between bg-white/50 backdrop-blur-md">
+                                <div className="flex items-center gap-4">
+                                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-xrTlnIJIts8syEX6wp_-N9w9L8zI5Sc0Rya5WP9rjC5mWMX9vzX0eGsxRTapaLU56lVx97ZHd3cauT8-ZFBvy0KxEqTspye8gqUCCBbTQSIOxHWV3zh4HTtVBPu4C9xsWFeHWT5TWfWekWGMwjFzpd5Gbi-zhWZtAnAeIcGXmNLO9llMfh2eBwUDYkCLCqTQyhXjYv6qrGNgnF8UHOn7HZyijrwDSTSaQZna8wl1aR-NMK_0iPZoMFf1njGSrmHvgd_of_fU1As" className="w-10 h-10 rounded-full object-cover" />
+                                    <div><h2 className="font-bold">Eleni</h2><p className="text-xs text-primary font-bold">Azure Heights Villa • Host</p></div>
+                                </div>
+                            </header>
+                            <div className="flex-grow p-6 overflow-y-auto custom-scrollbar flex flex-col gap-6">
+                                <div className="flex gap-3 max-w-[80%]">
+                                    <div className="message-bubble-received p-4 shadow-sm text-sm">Hello! Thank you for booking Azure Heights Villa. I'm Eleni, your host. I've just received your confirmation.</div>
+                                </div>
+                                <div className="flex gap-3 max-w-[80%] ml-auto flex-row-reverse">
+                                    <div className="message-bubble-sent p-4 shadow-lg text-sm">Hi Eleni! We're so excited for our stay. I just wanted to confirm if early check-in at 2 PM might be possible?</div>
+                                </div>
+                            </div>
+                            <footer className="p-6 bg-white/60 border-t border-outline-variant/30">
+                                <div className="flex items-center gap-3 bg-white border border-outline-variant/40 p-2 rounded-2xl">
+                                    <button className="p-2 text-secondary"><span className="material-symbols-outlined">add_circle</span></button>
+                                    <input className="flex-grow border-none focus:ring-0 text-sm" placeholder="Type your message..." />
+                                    <button className="bg-primary text-white w-10 h-10 rounded-xl flex items-center justify-center"><span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>send</span></button>
+                                </div>
+                            </footer>
+                        </section>
+                    </div>
+                </main>
+            </div>
+        );
+
+        const HostDocuments = () => (
+            <div className="flex bg-slate-50 min-h-screen">
+                <SidebarHost />
+                <main className="ml-64 p-margin-desktop w-full max-w-container-max mx-auto">
+                    <header className="flex justify-between items-center mb-12">
+                        <div>
+                            <h2 className="text-5xl font-black text-primary">Documents & Vault</h2>
+                            <p className="text-secondary mt-1">Manage your legal agreements and secure records.</p>
+                        </div>
+                        <button className="bg-primary text-white px-6 py-3 rounded-full font-bold flex items-center gap-2 hover-scale active-scale shadow-lg">
+                            <span className="material-symbols-outlined">upload</span> Upload Agreement
+                        </button>
+                    </header>
+                    <section className="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-12">
+                        <div className="col-span-2 glass-panel p-8 rounded-xl relative overflow-hidden">
+                            <h3 className="text-3xl font-bold mb-4">Secured by Amazon S3 Vault</h3>
+                            <p className="text-secondary max-w-md">Your sensitive documents are encrypted at rest and in transit using military-grade AES-256 protocols.</p>
+                            <span className="material-symbols-outlined absolute -right-4 -bottom-4 text-[180px] opacity-5">cloud_done</span>
+                        </div>
+                        <div className="glass-panel p-8 rounded-xl flex flex-col justify-center items-center text-center">
+                            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 text-primary"><span className="material-symbols-outlined text-4xl">fingerprint</span></div>
+                            <h4 className="font-bold text-xl mb-2">Access Control</h4>
+                            <p className="text-sm text-secondary">Only verified property owners and legal associates can access these files.</p>
+                        </div>
+                    </section>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {['Azure Heights - Lease Agreement.pdf', 'Skyline Penthouse - Insurance Docs.zip'].map((doc, idx) => (
+                            <div key={idx} className="glass-panel p-6 rounded-xl hover-scale transition-all flex flex-col h-full shadow-sm">
+                                <div className="flex items-start justify-between mb-6">
+                                    <div className="p-3 bg-primary/10 text-primary rounded-lg"><span className="material-symbols-outlined text-3xl">picture_as_pdf</span></div>
+                                    <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">Signed</span>
+                                </div>
+                                <h5 className="font-bold text-lg mb-4 truncate">{doc}</h5>
+                                <div className="mt-auto grid grid-cols-3 gap-2 pt-4 border-t border-outline-variant/30">
+                                    <button className="flex flex-col items-center p-2 rounded-lg hover:bg-slate-50 transition-colors text-secondary"><span className="material-symbols-outlined text-xl">visibility</span><span className="text-[10px] font-black uppercase mt-1">View</span></button>
+                                    <button className="flex flex-col items-center p-2 rounded-lg hover:bg-slate-50 transition-colors text-secondary"><span className="material-symbols-outlined text-xl">download</span><span className="text-[10px] font-black uppercase mt-1">Get</span></button>
+                                    <button className="flex flex-col items-center p-2 rounded-lg hover:bg-slate-50 transition-colors text-secondary"><span className="material-symbols-outlined text-xl">share</span><span className="text-[10px] font-black uppercase mt-1">Share</span></button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </main>
+            </div>
+        );
+
+        const App = () => (
+            <MemoryRouter>
+                <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/discovery" element={<DiscoveryPage />} />
+                    <Route path="/property-details" element={<PropertyDetails />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/tenant-dashboard" element={<TenantDashboard />} />
+                    <Route path="/host-dashboard" element={<HostDashboard />} />
+                    <Route path="/add-listing" element={<AddListingPage />} />
+                    <Route path="/messages" element={<MessagesPage />} />
+                    <Route path="/host-documents" element={<HostDocuments />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        const container = document.getElementById('root');
+        const root = createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+</html>
