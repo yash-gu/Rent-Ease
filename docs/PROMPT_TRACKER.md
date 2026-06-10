@@ -231,3 +231,13 @@ This document tracks the prompts, requirements, and change logs processed during
 - **Prompt**: *"can I get a printable invoice of my booking"*
 - **Resolution**:
   - Configured `@media print` style blocks in [index.css](file:///Users/yashgupta/Downloads/RentEase/mernease/frontend/src/index.css) to generate clean printing templates for bills.
+
+---
+
+## Prompt 31: Razorpay Payment Gateway Integration
+- **Prompt**: *"connect rozarpay using test api"*
+- **Resolution**:
+  - Installed `razorpay` package and created API endpoint `POST /api/razorpay/order` in [server.js](file:///Users/yashgupta/Downloads/RentEase/mernease/backend/server.js) with mock order fallback parameters.
+  - Added "Razorpay INR" tab option, rupee conversion (1 USD = 83 INR), and script loader in [CheckoutPage.js](file:///Users/yashgupta/Downloads/RentEase/mernease/frontend/src/pages/CheckoutPage.js).
+  - Built a simulated in-app Razorpay Sandbox checkout modal popup in React for seamless user testing when API credentials are absent.
+  - Linked success handlers to post bookings to the PostgreSQL ledger.

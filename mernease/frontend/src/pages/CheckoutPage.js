@@ -160,7 +160,7 @@ const CheckoutPage = () => {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          amount: bookingDetails.totalPrice,
+          amount: inrAmount,
           currency: 'INR'
         })
       });
