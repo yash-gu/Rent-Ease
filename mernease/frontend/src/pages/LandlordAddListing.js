@@ -38,7 +38,8 @@ const LandlordAddListing = () => {
   const [published, setPublished] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [uploadPreview, setUploadPreview] = useState('');
+  const [uploadedImages, setUploadedImages] = useState([PRESET_IMAGES[0].url]);
+  const [pastedUrl, setPastedUrl] = useState('');
 
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -56,8 +57,6 @@ const LandlordAddListing = () => {
     bedrooms: '1',
     bathrooms: '1',
     guests: '2',
-    imageUrl: PRESET_IMAGES[0].url,
-    customImageUrl: '',
     latitude: '40.7128',
     longitude: '-74.0060'
   });
@@ -248,26 +247,73 @@ const LandlordAddListing = () => {
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
 
-    // Validation - limit size to 4MB to prevent excessive DB sizes
-    if (file.size > 4 * 1024 * 1024) {
-      setError('Selected image is too large. Max size is 4MB.');
+    setError('');
+    
+    // Check if adding these would exceed 5 images
+    if (uploadedImages.length + files.length > 5) {
+      setError(`You can only upload a maximum of 5 images. Currently you have ${uploadedImages.length}.`);
       return;
     }
 
+    files.forEach(file => {
+      // Validation - limit size to 2MB to prevent excessive DB sizes
+      if (file.size > 2 * 1024 * 1024) {
+        setError(`"${file.name}" is too large. Max size per image is 2MB.`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUploadedImages(prev => {
+          if (prev.length >= 5) return prev;
+          return [...prev, reader.result];
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleRemoveImage = (indexToRemove) => {
     setError('');
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData(prev => ({ 
-        ...prev, 
-        customImageUrl: reader.result, // Holds the base64 string
-        imageUrl: '' // Clear preset selection
-      }));
-      setUploadPreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setUploadedImages(prev => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const handlePresetSelect = (url) => {
+    setError('');
+    setUploadedImages(prev => {
+      if (prev.includes(url)) {
+        // Toggle off
+        return prev.filter(img => img !== url);
+      } else {
+        // Toggle on
+        if (prev.length >= 5) {
+          setError('You can only select up to 5 images.');
+          return prev;
+        }
+        return [...prev, url];
+      }
+    });
+  };
+
+  const handleAddCustomUrl = () => {
+    if (!pastedUrl) return;
+    setError('');
+    
+    if (uploadedImages.length >= 5) {
+      setError('You can only select up to 5 images.');
+      return;
+    }
+    
+    if (!pastedUrl.startsWith('http://') && !pastedUrl.startsWith('https://')) {
+      setError('Please enter a valid HTTP or HTTPS image URL.');
+      return;
+    }
+
+    setUploadedImages(prev => [...prev, pastedUrl]);
+    setPastedUrl('');
   };
 
   const handleAmenityToggle = (amenity) => {
@@ -283,7 +329,11 @@ const LandlordAddListing = () => {
     setError('');
     setLoading(true);
 
-    const imageUrl = formData.customImageUrl || formData.imageUrl;
+    if (uploadedImages.length === 0) {
+      setError('Please add at least one image of the property.');
+      setLoading(false);
+      return;
+    }
 
     const payload = {
       title: formData.title,
@@ -295,7 +345,7 @@ const LandlordAddListing = () => {
       bathrooms: Number(formData.bathrooms),
       guests: Number(formData.guests),
       amenities: selectedAmenities,
-      images: [imageUrl],
+      images: uploadedImages,
       hostId: user._id,
       coordinates: {
         latitude: Number(formData.latitude),
@@ -585,39 +635,98 @@ const LandlordAddListing = () => {
             </h2>
             
             <div className="space-y-6">
-              {/* Upload Image Section */}
-              <div className="flex flex-col gap-1.5 p-6 bg-slate-950/50 border border-slate-850 rounded-2xl">
-                <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
-                  Upload Local Image File (Saved to Database)
+              {/* Gallery Preview Grid */}
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                  Property Gallery Grid (Up to 5 images, first is the Main Cover)
                 </label>
-                <div className="flex items-center gap-6 flex-wrap sm:flex-nowrap">
+                
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 min-h-[200px]">
+                  {/* Slot 1: Main Cover */}
+                  <div className="md:col-span-2 md:row-span-2 relative border border-slate-800 rounded-2xl overflow-hidden aspect-video bg-slate-950/40 flex items-center justify-center group">
+                    {uploadedImages[0] ? (
+                      <>
+                        <img src={uploadedImages[0]} className="w-full h-full object-cover" alt="Main Cover" />
+                        <div className="absolute top-3 left-3 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
+                          Main Cover
+                        </div>
+                        <div className="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                          <button 
+                            type="button" 
+                            onClick={() => handleRemoveImage(0)}
+                            className="p-3 bg-red-600 hover:bg-red-500 rounded-full text-white shadow-lg transition-transform active:scale-90"
+                            title="Remove Cover Image"
+                          >
+                            <span className="material-symbols-outlined text-lg block">delete</span>
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center p-6 text-slate-600">
+                        <span className="material-symbols-outlined text-4xl block mb-2">image</span>
+                        <span className="text-xs font-bold block uppercase tracking-wider">No Cover Image</span>
+                        <span className="text-[10px] opacity-70">Add an image to set cover</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Slots 2-5: Grid elements */}
+                  {[1, 2, 3, 4].map((index) => {
+                    const img = uploadedImages[index];
+                    return (
+                      <div key={index} className="relative border border-slate-800 rounded-2xl overflow-hidden aspect-video bg-slate-950/40 flex items-center justify-center group">
+                        {img ? (
+                          <>
+                            <img src={img} className="w-full h-full object-cover" alt={`Gallery ${index}`} />
+                            <div className="absolute top-2 left-2 bg-slate-950/80 text-slate-400 text-[9px] font-bold px-2 py-0.5 rounded">
+                              Slot {index + 1}
+                            </div>
+                            <div className="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                              <button 
+                                type="button" 
+                                onClick={() => handleRemoveImage(index)}
+                                className="p-2.5 bg-red-600 hover:bg-red-500 rounded-full text-white shadow-lg transition-transform active:scale-90"
+                                title={`Remove Image ${index + 1}`}
+                              >
+                                <span className="material-symbols-outlined text-sm block">delete</span>
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-center p-4 text-slate-700">
+                            <span className="material-symbols-outlined text-2xl block mb-1">add_photo_alternate</span>
+                            <span className="text-[10px] font-bold block uppercase tracking-wider">Empty Slot {index + 1}</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="border-t border-slate-850 my-6"></div>
+
+              {/* Upload Image Section */}
+              <div className="flex flex-col gap-1.5 p-6 bg-slate-955/50 border border-slate-850 rounded-2xl">
+                <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+                  Upload Local Image Files (Saved to Database)
+                </label>
+                <div className="flex items-center gap-6">
                   <label className="w-full sm:w-auto cursor-pointer bg-slate-900 border-2 border-slate-800 border-dashed rounded-xl px-8 py-5 text-center hover:border-emerald-500 hover:text-emerald-400 transition-all flex flex-col items-center justify-center gap-2 shrink-0">
                     <span className="material-symbols-outlined text-3xl">cloud_upload</span>
-                    <span className="text-xs font-bold">Upload Property Image</span>
-                    <span className="text-[10px] text-slate-500">Max size: 4MB</span>
+                    <span className="text-xs font-bold">Select Image Files</span>
+                    <span className="text-[10px] text-slate-500">Max size: 2MB per file (Up to 5 total)</span>
                     <input 
                       type="file" 
                       accept="image/*" 
                       onChange={handleFileChange} 
                       className="hidden" 
+                      multiple
                     />
                   </label>
-                  {uploadPreview ? (
-                    <div className="w-full sm:w-64 h-36 rounded-xl overflow-hidden border border-slate-800 shrink-0 relative group">
-                      <img src={uploadPreview} className="w-full h-full object-cover" alt="Upload Preview" />
-                      <div className="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                        <button 
-                          type="button" 
-                          onClick={() => { setUploadPreview(''); setFormData(p => ({ ...p, customImageUrl: '' })) }}
-                          className="p-2 bg-red-500 rounded-full text-white"
-                        >
-                          <span className="material-symbols-outlined text-sm block">delete</span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-slate-500">No custom file uploaded. Choose a preset or list a file.</p>
-                  )}
+                  <p className="text-xs text-slate-500">
+                    Select one or more files to append to your property gallery.
+                  </p>
                 </div>
               </div>
 
@@ -626,19 +735,16 @@ const LandlordAddListing = () => {
               {/* Preset selection */}
               <div className="space-y-3">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                  Or Select a Premium Stock Preset Image
+                  Select Stock Preset Images to Add to Gallery
                 </label>
                 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                   {PRESET_IMAGES.map((img) => {
-                    const isSelected = formData.imageUrl === img.url && !formData.customImageUrl;
+                    const isSelected = uploadedImages.includes(img.url);
                     return (
                       <div 
                         key={img.label}
-                        onClick={() => {
-                          setFormData(p => ({ ...p, imageUrl: img.url, customImageUrl: '' }));
-                          setUploadPreview('');
-                        }}
+                        onClick={() => handlePresetSelect(img.url)}
                         className={`relative cursor-pointer overflow-hidden rounded-2xl border-2 transition-all aspect-video group ${
                           isSelected ? 'border-emerald-500 scale-[1.03] shadow-md shadow-emerald-500/10' : 'border-slate-850 hover:border-slate-650'
                         }`}
@@ -661,21 +767,26 @@ const LandlordAddListing = () => {
               {/* URL fallback */}
               <div className="flex flex-col gap-1.5 pt-4">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  Or Paste Custom Image URL
+                  Or Add Custom Image URL
                 </label>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">link</span>
-                  <input 
-                    type="url"
-                    name="customImageUrl"
-                    value={formData.customImageUrl.startsWith('data:image/') ? '' : formData.customImageUrl}
-                    onChange={(e) => {
-                      setFormData(p => ({ ...p, customImageUrl: e.target.value }));
-                      setUploadPreview('');
-                    }}
-                    className="w-full pl-12 pr-4 py-3.5 bg-slate-955 border border-slate-800 rounded-xl focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-white outline-none" 
-                    placeholder="https://images.unsplash.com/... (Overrides selection)" 
-                  />
+                <div className="flex gap-2">
+                  <div className="relative flex-grow">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">link</span>
+                    <input 
+                      type="url"
+                      value={pastedUrl}
+                      onChange={(e) => setPastedUrl(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3.5 bg-slate-955 border border-slate-800 rounded-xl focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-white outline-none" 
+                      placeholder="https://images.unsplash.com/..." 
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddCustomUrl}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3.5 rounded-xl text-xs transition-all active:scale-[0.98] border border-emerald-500/10 shrink-0"
+                  >
+                    Add URL
+                  </button>
                 </div>
               </div>
             </div>
