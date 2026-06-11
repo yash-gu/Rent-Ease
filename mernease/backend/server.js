@@ -36,8 +36,12 @@ const app = express();
 app.use(helmet());
 
 // Dynamic CORS configuration
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+  : ['http://localhost:3000'];
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: allowedOrigins,
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
