@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 const NavTop = ({ role = "tenant" }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, user, logout, isTenant, isLandlord, isAdmin } = useAuth();
+  const { isAuthenticated, user, logout, isLandlord, isAdmin } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 

@@ -2,8 +2,7 @@
   "mcp.serverConfigs": {
     "notion": {
       "type": "http",
-      "url": "https://mcp.notion.com/mcp",
-      "apiKey": "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"
+      "url": "https://mcp.notion.com/mcp"
     }
   }
 }

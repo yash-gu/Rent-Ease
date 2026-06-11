@@ -72,18 +72,83 @@ const messageSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-// Review Schema
+// Review Schema - Enhanced
 const reviewSchema = new mongoose.Schema({
   propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property', required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  bookingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking' },
   rating: { type: Number, required: true, min: 1, max: 5 },
-  title: String,
-  comment: String,
-  cleanliness: Number,
-  communication: Number,
-  location: Number,
-  value: Number,
-  createdAt: { type: Date, default: Date.now }
+  title: { type: String, required: true },
+  comment: { type: String, required: true },
+  cleanliness: { type: Number, min: 1, max: 5 },
+  communication: { type: Number, min: 1, max: 5 },
+  location: { type: Number, min: 1, max: 5 },
+  value: { type: Number, min: 1, max: 5 },
+  images: [String],
+  verified: { type: Boolean, default: false },
+  helpful: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+// Wishlist Schema - NEW
+const wishlistSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property', required: true },
+  notes: String,
+  addedAt: { type: Date, default: Date.now }
+});
+
+// Journey/Trip Schema - NEW
+const journeySchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  title: { type: String, required: true },
+  description: String,
+  destination: { type: String, required: true },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date, required: true },
+  properties: [
+    {
+      propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property' },
+      bookingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking' },
+      checkIn: Date,
+      checkOut: Date
+    }
+  ],
+  memories: [
+    {
+      type: String,
+      title: String,
+      description: String,
+      date: { type: Date, default: Date.now }
+    }
+  ],
+  itinerary: [
+    {
+      day: Number,
+      title: String,
+      description: String,
+      location: String,
+      activities: [String]
+    }
+  ],
+  budget: {
+    estimated: Number,
+    spent: Number,
+    currency: { type: String, default: 'USD' }
+  },
+  status: { type: String, enum: ['Planning', 'Ongoing', 'Completed'], default: 'Planning' },
+  isPublic: { type: Boolean, default: false },
+  likes: { type: Number, default: 0 },
+  comments: [
+    {
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      text: String,
+      createdAt: { type: Date, default: Date.now }
+    }
+  ],
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 });
 
 // Earnings Schema
@@ -115,6 +180,8 @@ const Property = mongoose.model('Property', propertySchema);
 const Booking = mongoose.model('Booking', bookingSchema);
 const Message = mongoose.model('Message', messageSchema);
 const Review = mongoose.model('Review', reviewSchema);
+const Wishlist = mongoose.model('Wishlist', wishlistSchema);
+const Journey = mongoose.model('Journey', journeySchema);
 const Earnings = mongoose.model('Earnings', earningsSchema);
 const Document = mongoose.model('Document', documentSchema);
 
@@ -124,6 +191,8 @@ module.exports = {
   Booking,
   Message,
   Review,
+  Wishlist,
+  Journey,
   Earnings,
   Document
 };

@@ -24,11 +24,13 @@ import LandlordDocuments from './pages/LandlordDocuments';
 import HostEarnings from './pages/HostEarnings';
 import HostBookings from './pages/HostBookings';
 import AdminDashboard from './pages/AdminDashboard';
+import AIAssistant from './components/AIAssistant';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
+        <AIAssistant />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />

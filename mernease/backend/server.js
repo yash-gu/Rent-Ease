@@ -545,3 +545,199 @@ const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   logger.info(`✅ Server running on port ${PORT}`);
 });
+
+// ============ WISHLIST ROUTES ============
+app.get('/api/wishlist/:userId', async (req, res) => {
+  try {
+    const wishlist = await db.getWishlistByUserId(req.params.userId);
+    res.json(wishlist || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/wishlist', async (req, res) => {
+  try {
+    const wishlist = await db.addToWishlist(req.body);
+    res.status(201).json(wishlist);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.delete('/api/wishlist/:userId/:propertyId', async (req, res) => {
+  try {
+    const result = await db.removeFromWishlist(req.params.userId, req.params.propertyId);
+    res.json({ message: 'Removed from wishlist', success: result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/wishlist/:userId/:propertyId', async (req, res) => {
+  try {
+    const wishlist = await db.updateWishlistNotes(req.params.userId, req.params.propertyId, req.body.notes);
+    res.json(wishlist);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// ============ JOURNEY/TRIP ROUTES ============
+app.post('/api/journeys', async (req, res) => {
+  try {
+    const journey = await db.createJourney(req.body);
+    res.status(201).json(journey);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.get('/api/journeys/:userId', async (req, res) => {
+  try {
+    const journeys = await db.getJourneysByUserId(req.params.userId);
+    res.json(journeys || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/journeys/detail/:journeyId', async (req, res) => {
+  try {
+    const journey = await db.getJourneyById(req.params.journeyId);
+    if (!journey) {
+      return res.status(404).json({ error: 'Journey not found' });
+    }
+    res.json(journey);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/journeys/:journeyId', async (req, res) => {
+  try {
+    const journey = await db.updateJourney(req.params.journeyId, req.body);
+    res.json(journey);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.delete('/api/journeys/:journeyId', async (req, res) => {
+  try {
+    const result = await db.deleteJourney(req.params.journeyId);
+    res.json({ message: 'Journey deleted successfully', success: result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/journeys/:journeyId/memories', async (req, res) => {
+  try {
+    const journey = await db.addMemoryToJourney(req.params.journeyId, req.body);
+    res.status(201).json(journey);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.post('/api/journeys/:journeyId/itinerary', async (req, res) => {
+  try {
+    const journey = await db.addItineraryToJourney(req.params.journeyId, req.body);
+    res.status(201).json(journey);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.post('/api/journeys/:journeyId/like', async (req, res) => {
+  try {
+    const journey = await db.likeJourney(req.params.journeyId);
+    res.json(journey);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.post('/api/journeys/:journeyId/comment', async (req, res) => {
+  try {
+    const journey = await db.addCommentToJourney(req.params.journeyId, req.body);
+    res.status(201).json(journey);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// ============ ENHANCED REVIEW ROUTES ============
+app.get('/api/reviews/property/:propertyId', async (req, res) => {
+  try {
+    const reviews = await db.getReviewsByPropertyId(req.params.propertyId);
+    res.json(reviews || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/reviews/user/:userId', async (req, res) => {
+  try {
+    const reviews = await db.getReviewsByUserId(req.params.userId);
+    res.json(reviews || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/reviews', async (req, res) => {
+  try {
+    const review = await db.createReview(req.body);
+    
+    // Update property rating
+    const reviews = await db.getReviewsByPropertyId(req.body.propertyId);
+    const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+    await db.updatePropertyRating(req.body.propertyId, avgRating, reviews.length);
+    
+    res.status(201).json(review);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.put('/api/reviews/:reviewId', async (req, res) => {
+  try {
+    const review = await db.updateReview(req.params.reviewId, req.body);
+    res.json(review);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.delete('/api/reviews/:reviewId', async (req, res) => {
+  try {
+    const review = await db.deleteReview(req.params.reviewId);
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+    res.json({ message: 'Review deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/reviews/:reviewId/helpful', async (req, res) => {
+  try {
+    const review = await db.markReviewHelpful(req.params.reviewId);
+    res.json(review);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// ============ PUBLISHED JOURNEYS (Public) ============
+app.get('/api/journeys/published/all', async (req, res) => {
+  try {
+    const journeys = await db.getPublishedJourneys();
+    res.json(journeys || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});

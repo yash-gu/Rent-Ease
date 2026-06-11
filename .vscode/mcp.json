@@ -1,10 +1,14 @@
 {
   "servers": {
     "notion": {
-      "command": "uvx",
-      "args": ["mcp-notion"],
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp"
+    },
+    "notionApi": {
+      "command": "npx",
+      "args": ["-y", "@notionhq/notion-mcp-server"],
       "env": {
-        "NOTION_API_KEY": "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"
+        "NOTION_TOKEN": "${NOTION_TOKEN}"
       }
     }
   }

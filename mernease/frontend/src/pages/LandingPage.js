@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import NavTop from '../components/NavTop';
 import Footer from '../components/Footer';
+import DatePicker from '../components/DatePicker';
 
 const LandingPage = () => {
+  const [selectedDates, setSelectedDates] = useState({ checkIn: null, checkOut: null });
+
+  const handleDateChange = (dates) => {
+    setSelectedDates(dates);
+    console.log('Selected dates:', dates);
+  };
+
   const features = [
     { icon: 'star', title: 'Premium Selection', desc: 'Only the top 1% of properties make it through our rigorous vetting process.' },
     { icon: 'verified_user', title: 'Secure Payments', desc: 'Enterprise-grade encryption and fraud protection for every transaction.' },
@@ -35,9 +43,14 @@ const LandingPage = () => {
             </div>
             <div className="flex-1 w-full flex items-center gap-3 px-6 py-3 border-b md:border-b-0 md:border-r border-outline-variant/30">
               <span className="material-symbols-outlined text-primary">calendar_month</span>
-              <div className="text-left">
+              <div className="text-left w-full">
                 <label className="text-xs text-secondary font-bold">Dates</label>
-                <input className="bg-transparent border-none p-0 focus:ring-0 text-on-surface font-medium w-full" placeholder="Add dates" />
+                <DatePicker 
+                  placeholder="Add dates" 
+                  onDateChange={handleDateChange}
+                  checkIn={selectedDates.checkIn}
+                  checkOut={selectedDates.checkOut}
+                />
               </div>
             </div>
             <Link to="/discovery" className="w-full md:w-auto px-8 py-4 rounded-full bg-primary text-white font-bold hover:scale-[1.05] transition-all flex items-center justify-center gap-2">

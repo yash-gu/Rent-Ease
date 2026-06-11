@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import NavTop from '../components/NavTop';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
